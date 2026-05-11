@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Tailored Demo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Code Tailored 四段式推理演示</h1>
+        <form id="question-form">
+            <textarea id="question" name="question" placeholder="输入编程问题..." required></textarea>
+            <button type="submit">生成解答</button>
+        </form>
+        <div id="output" class="output"></div>
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
