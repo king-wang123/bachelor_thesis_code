@@ -126,6 +126,38 @@ def parallelize_with_multiprocessing(data_list, func, max_workers=4):
                 pbar.update(1)
     return results
 
+
+def parallelize(data_list, func, max_workers=4, on_result=None):
+    """Thread-based parallel execution for IO-bound tasks (e.g., LLM API calls).
+
+    Args:
+        data_list: list of items to process
+        func: function to apply to each item
+        max_workers: number of concurrent threads
+        on_result: optional callback(result) called when each result is ready,
+                   useful for streaming writes (e.g., append to file per completion)
+    Returns:
+        list of results in original order
+    """
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    results = [None] * len(data_list)
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {executor.submit(func, item): i for i, item in enumerate(data_list)}
+        with tqdm(total=len(data_list)) as pbar:
+            for future in as_completed(futures):
+                idx = futures[future]
+                try:
+                    result = future.result()
+                    results[idx] = result
+                    if on_result and result is not None:
+                        on_result(result)
+                except Exception as e:
+                    print(f"[Error] index {idx}: {e}")
+                    results[idx] = None
+                pbar.update(1)
+    return results
+
 def get_message_str(messages):
     message_str = ''
     for index, message in enumerate(messages):
